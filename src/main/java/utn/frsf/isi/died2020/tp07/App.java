@@ -3,6 +3,8 @@ package utn.frsf.isi.died2020.tp07;
 import utn.frsf.isi.died2020.tp07.modelo.Curso;
 import utn.frsf.isi.died2020.tp07.modelo.Material;
 import utn.frsf.isi.died2020.tp07.modelo.Tema;
+import utn.frsf.isi.died2020.tp07.modelo.Video;
+import utn.frsf.isi.died2020.tp07.modelo.Libro;
 import utn.frsf.isi.died2020.tp07.servicios.Catalogo;
 
 public class App {
@@ -40,7 +42,27 @@ public class App {
 		System.out.println("Busco por rango de calificacion ordenada decrecientemente");
 		System.out.println("");
 		cat.busquedaRangoCalificacionOrdCalif(75,88).stream().forEach(System.out::println);
-
+		
+		System.out.println("=============================================");
+		System.out.println("Busco por titulo");
+		System.out.println("");		
+		cat.busquedaPorTitulo("Libro", 5).stream().forEach(System.out::println);
+		
+		System.out.println("=============================================");
+		System.out.println("Busco por rango de fecha");
+		System.out.println("");		
+		cat.busquedaPorRangoDeFecha("01-01-2018","01-01-2020",3).stream().forEach(System.out::println);
+		
+		System.out.println("=============================================");
+		System.out.println("Busco por tipo de material y autor");
+		System.out.println("");		
+		cat.busquedaPorTipoyAutor(Libro.class,"Pilar",3).stream().forEach(System.out::println);
+		
+		System.out.println("=============================================");
+		System.out.println("Busco por rango de calificación");
+		System.out.println("");		
+		cat.busquedaPorRangoDeCalificacion(45,90,5).stream().forEach(System.out::println);
+		
 }
 
 }

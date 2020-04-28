@@ -6,6 +6,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -24,7 +25,7 @@ import utn.frsf.isi.died2020.tp07.modelo.Video;
 
 public class Catalogo {
 	
-	public enum CriterioOrdenamiento { TITULO,FECHA_PUBLICACION,CALIFICACION,COSTO,CALIFICACION_COSTO};
+	public enum CriterioOrdenamiento { TITULO,FECHA_PUBLICACION,CALIFICACION,COSTO,CALIFICACION_COSTO,AUTOR};
 	
 	private List<Material> catalogo;
 	private Set<Autor> autores;
@@ -54,7 +55,8 @@ public class Catalogo {
 	}
 
 	private List<Material> buscarListaMaterial(Predicate<Material> p) {
-		return this.catalogo.stream()
+		return this.catalogo
+				.stream()
 				.filter(p)
 				.sorted()
 				.collect(Collectors.toList());
@@ -136,12 +138,36 @@ public class Catalogo {
 		switch(criterio) {
 			case CALIFICACION:
 				return (m1,m2) -> m2.getCalificacion().compareTo(m1.getCalificacion());
+			case TITULO:
+				return (m1,m2) -> m1.getTitulo().compareToIgnoreCase(m2.getTitulo());
+			case FECHA_PUBLICACION:
+				return (m1,m2) -> m1.getFechaPublicacion().compareTo(m2.getFechaPublicacion());
+			case AUTOR:
+				return (m1,m2) -> m1.getAutor().getNombre().compareToIgnoreCase(m2.getAutor().getNombre());
 		}
 		return null;
 	}
 	
+	public List<Material> busquedaPorTitulo(String titulo,Integer cantidadDeResultados){
+		Predicate<Material> filtrarTitulo = m -> m.getTitulo().toUpperCase().contains(titulo.toUpperCase());		
+		return this.buscarListaMaterial(filtrarTitulo, cantidadDeResultados, this.getCriterio(CriterioOrdenamiento.TITULO));
+	}
+	
 	public List<Material> busquedaRangoCalificacionOrdCalif(Integer minimo,Integer max){
 		return this.buscarListaMaterial( m -> m.getCalificacion()>= minimo && m.getCalificacion()<=max, this.getCriterio(CriterioOrdenamiento.CALIFICACION));
+	}
+	
+	public List<Material> busquedaPorRangoDeFecha(String inicio, String fin , Integer cantidadDeResultados){
+		LocalDateTime fechaInicio,fechaFin;
+		fechaInicio = LocalDate.parse(inicio, formatter).atStartOfDay();
+		fechaFin = LocalDate.parse(fin, formatter).atStartOfDay();
+		Predicate<Material> filtrarPorRangoDeFecha = m -> m.getFechaPublicacion().isBefore(fechaFin) && m.getFechaPublicacion().isAfter(fechaInicio);
+		return this.buscarListaMaterial(filtrarPorRangoDeFecha,cantidadDeResultados,this.getCriterio(CriterioOrdenamiento.FECHA_PUBLICACION));
+	}
+	
+	public List<Material> busquedaPorTipoyAutor(Class clas, String nombreAutor, int cantidadDeResultados){
+		Predicate<Material> filtrarPorTipoyAutor = m -> m.getClass() == clas && m.getAutor().getNombre().toUpperCase().contains(nombreAutor.toUpperCase());
+		return this.buscarListaMaterial(filtrarPorTipoyAutor, cantidadDeResultados, this.getCriterio(CriterioOrdenamiento.AUTOR));
 	}
 	
 	public static void main(String[] args) {
@@ -149,6 +175,11 @@ public class Catalogo {
 		System.out.println(LocalDate.parse("20-02-2010", formatter).atTime(LocalTime.now()));
 		System.out.println(LocalDate.parse("20-02-2010", formatter).atStartOfDay());
 		
+	}
+
+	public Collection<Material> busquedaPorRangoDeCalificacion(int calificacionMinima, int calificacionMaxima, int cantidadDeResultados) {
+		Predicate<Material> filtrarPorRangoDeCalifiacion = m -> m.getCalificacion() >= calificacionMinima && m.getCalificacion() <= calificacionMaxima;
+		return this.buscarListaMaterial(filtrarPorRangoDeCalifiacion , cantidadDeResultados, this.getCriterio(CriterioOrdenamiento.CALIFICACION));
 	}
 
 }
